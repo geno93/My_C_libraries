@@ -1,0 +1,99 @@
+/*
+
+NOTA: per mantenere uniformita' con lo pseudocodice riportato nelle dispense,
+il vettore A contiene (n + 1) elementi, dei quali si utilizzano
+effettivamente solo quelli con indici da 1 a n. L'elemento
+di indice 0 e' allocato ma non viene mai utilizzato.
+
+Analogo discorso per il vettore temporaneo B allocato dentro la funzione fondi()
+
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+
+void mergesort(int *A, int indice_primo, int indice_ultimo);
+void fondi(int *A, int indice_primo, int indice_medio, int indice_ultimo);
+void leggi_vettore(int *A, int n);
+void stampa_vettore(int *A, int n);
+
+int main() {
+	int* V;
+	int i, dim;
+	printf("Numero di elementi: ");
+	scanf("%d", &dim);
+
+	V = (int*)malloc((dim+1)*sizeof(int));
+	leggi_vettore(V, dim);
+	mergesort(V, 1, dim);
+	stampa_vettore(V, dim);
+
+	return 0;
+}
+
+void mergesort(int *A, int indice_primo, int indice_ultimo){
+	int indice_medio;
+
+	if (indice_primo < indice_ultimo) {
+		indice_medio = (indice_primo + indice_ultimo)/2;
+		mergesort(A, indice_primo, indice_medio);
+		mergesort(A, indice_medio + 1, indice_ultimo);
+		fondi(A, indice_primo, indice_medio, indice_ultimo);
+	}
+}
+
+void fondi(int *A, int indice_primo, int indice_medio, int indice_ultimo){
+	int *B;
+	int i, j, k;
+
+	B = (int*)malloc((indice_ultimo - indice_primo + 2)*sizeof(int));
+
+	i = indice_primo;														//  1
+	j = indice_medio + 1;													//  2
+	k = 1;																	//  3
+
+	while ((i <= indice_medio) && (j <= indice_ultimo)) {					//  4
+		if (A[i] < A[j]) {													//  5
+			B[k] = A[i];													//  6
+			i = i + 1;														//  7
+		}
+		else {																//  8
+			B[k] = A[j];													//  9
+			j = j + 1;														// 10
+		}
+		k = k + 1;															// 11
+	}
+	while (i <= indice_medio) { //il primo sottovettore non e' terminato	   12
+		B[k] = A[i];														// 13
+		i = i + 1;															// 14
+		k = k + 1;															// 15
+	}
+	while (j <= indice_ultimo) { //il secondo sottovettore non e' terminato    16
+		B[k] = A[j];														// 17
+		j = j + 1;															// 18
+		k = k + 1;															// 19
+	}
+	
+	//copia B[1..k-1] su A[indice_primo..indice_ultimo]						   20
+	for (i = 1; i < k; i++){
+		A[indice_primo + i - 1] = B[i];
+	}
+	free(B);
+}
+
+void leggi_vettore(int *A, int n) {
+	int i, val;
+
+	for (i = 1; i <= n; i++) {
+			scanf("%d", &val);
+			A[i] = val;
+	}
+}
+
+void stampa_vettore(int *A, int n) {
+	int i;
+
+	for (i = 1; i <= n; i++)
+		printf("%d ", A[i]);
+	printf("\n");
+}
